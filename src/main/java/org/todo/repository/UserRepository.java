@@ -137,4 +137,11 @@ public class UserRepository {
                 .stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
+
+    // check if user exists
+    public boolean userExists(UUID id) {
+        Preconditions.checkArgument(id != null, "id cannot be null");
+
+        return activeUsers.containsKey(id);
+    }
 }

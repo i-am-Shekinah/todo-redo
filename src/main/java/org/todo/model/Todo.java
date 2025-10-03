@@ -27,6 +27,8 @@ public class Todo {
         this.deletedAt = builder.deletedAt;
     }
 
+
+
     // Builder class
     public static class Builder {
 
