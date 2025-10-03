@@ -185,7 +185,7 @@ public class TodoRepository {
                 userId
         );
 
-        Map<UUID, Todo> todos =  userToTodos.get(userId);
+        Map<UUID, Todo> todos =  fetchAllTodos(userId).getData();
 
         Predicate<Map.Entry<UUID, Todo>> isActive = entry ->
                 TodoStatus.ACTIVE.equals(entry.getValue().getStatus());
@@ -198,6 +198,32 @@ public class TodoRepository {
                 true,
                 "Fetched all active todos successfully",
                 activeTodos
+        );
+    }
+
+    public ApiResponse<Map<UUID, Todo>> fetchCompletedTodos(UUID userId) {
+        Preconditions.checkNotNull(userId, "userId cannot be null");
+
+        // check user exists
+        Preconditions.checkArgument(
+                userRepository.userExists(userId),
+                "Cannot fetch Todos: User with ID '%s' does not exist",
+                userId
+        );
+
+        Map<UUID, Todo> todos =  fetchAllTodos(userId).getData();
+
+        Predicate<Map.Entry<UUID, Todo>> isComplete = entry ->
+                TodoStatus.COMPLETED.equals(entry.getValue().getStatus());
+
+        Map<UUID, Todo> completedTodos = CollectionUtils.select(todos.entrySet(), isComplete)
+                .stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+        return new ApiResponse<>(
+                true,
+                "Fetched all completed todos successfully",
+                completedTodos
         );
     }
 
