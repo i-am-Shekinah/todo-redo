@@ -227,4 +227,28 @@ public class TodoRepository {
         );
     }
 
+    public ApiResponse<Map<UUID, Todo>> fetchAllOverdueTodos(UUID userId) {
+        Preconditions.checkNotNull(userId, "userId cannot be null");
+
+        // check user exists
+        Preconditions.checkArgument(
+                userRepository.userExists(userId),
+                "Cannot fetch Todos: User with ID '%s' does not exist",
+                userId
+        );
+
+        Predicate<Map.Entry<UUID, Todo>> isOverdue = entry ->
+                TodoStatus.OVERDUE.equals(entry.getValue().getStatus());
+
+        Map<UUID, Todo> overdueTodos = CollectionUtils.select(userToTodos.get(userId).entrySet(), isOverdue)
+                .stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+        return new ApiResponse<>(
+                true,
+                "Fetched all overdue todos successfully",
+                overdueTodos
+        );
+    }
+
 }
